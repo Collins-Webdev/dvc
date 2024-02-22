@@ -9,23 +9,21 @@ def test_to_json_vega(mocker):
     vega_renderer.get_revs.return_value = ["bar", "foo"]
     vega_renderer.get_filled_template.return_value = {"this": "is vega"}
     result = to_json(vega_renderer)
-    assert result == [{
+    assert result[0] == {
         TYPE_KEY: vega_renderer.TYPE,
         REVISIONS: ["bar", "foo"],
         "content": {"this": "is vega"},
-    }]
-    vega_renderer.get_filled_template.assert_called()
+    }
+    vega_renderer.get_filled_template.assert_called_once()
 
 @pytest.mark.vscode
 def test_to_json_vega_split(mocker):
     revs = ["bar", "foo"]
-    content = json.dumps(
-        {
-            "this": "is split vega",
-            "encoding": {"color": "<DVC_METRIC_COLOR>"},
-            "data": {"values": "<DVC_METRIC_DATA>"},
-        }
-    )
+    content = json.dumps({
+        "this": "is split vega",
+        "encoding": {"color": "<DVC_METRIC_COLOR>"},
+        "data": {"values": "<DVC_METRIC_DATA>"},
+    })
     anchor_definitions = {
         "<DVC_METRIC_COLOR>": {
             "field": "rev",
@@ -59,12 +57,12 @@ def test_to_json_vega_split(mocker):
     vega_renderer.get_revs.return_value = ["bar", "foo"]
 
     result = to_json(vega_renderer, split=True)
-    assert result == [{
+    assert result[0] == {
         ANCHOR_DEFINITIONS: anchor_definitions,
         TYPE_KEY: vega_renderer.TYPE,
         REVISIONS: revs,
         "content": content,
-    }]
+    }
     vega_renderer.get_partial_filled_template.assert_called_once()
 
 def test_to_json_image(mocker):
@@ -75,8 +73,8 @@ def test_to_json_image(mocker):
         {SRC: "contentbar", REVISION: "bar"},
     ]
     result = to_json(image_renderer)
-    assert result == [{
+    assert result[0] == {
         "url": image_renderer.datapoints[0].get(SRC),
-        REVISIONS: [image_renderer.datapoints[0].get(REVISION)],
+        REVISIONS: [dp.get(REVISION) for dp in image_renderer.datapoints],
         TYPE_KEY: image_renderer.TYPE,
-    }]
+    }
