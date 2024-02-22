@@ -7,7 +7,6 @@ from dvc_s3 import S3FileSystem
 from dvc_ssh import SSHFileSystem
 
 # Add docstrings to functions and classes
-
 url_cls_pairs = [
     # Cloud-based file systems
     ("s3://bucket/path", S3FileSystem),
